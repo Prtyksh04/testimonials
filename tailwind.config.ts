@@ -16,7 +16,8 @@ const config: Config = {
       colors:{
         'custom-gray': '#454a52',
         'background' : '#151719',
-        'live' : '#7aa692'
+        'live' : '#7aa692',
+        'inbox-hover':'#33363a',
       }
     },
   },

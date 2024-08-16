@@ -118,7 +118,7 @@ const DashBoard: React.FC = () => {
                         {/* Close Button */}
                         <button
                             onClick={handleCloseModal}
-                            className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 z-20"
+                            className={`absolute top-4 right-4 z-20 ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}
                         >
                             <span className="sr-only">Close</span>
                             <FontAwesomeIcon icon={faTimes} />
@@ -131,7 +131,7 @@ const DashBoard: React.FC = () => {
                                 <div className="w-1/2 p-6 border-r border-gray-300 overflow-auto min-h-[500px] z-10 relative">
                                     <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
                                     <h2 className="text-2xl font-bold mb-4 text-live">Live Preview</h2>
-                                    <div className={`bg-white p-6 rounded-lg shadow-md border border-gray-200 relative z-10 ${isDarkTheme ? 'bg-gray-800 text-gray-100 border-gray-700' : ''}`}>
+                                    <div className={`p-6 rounded-lg shadow-md border border-gray-200 relative z-10 ${isDarkTheme ? 'bg-background text-white' : 'bg-white'}`}>
                                         <div className='flex items-center justify-center flex-col mb-2'>
                                             <h3 className="text-3xl font-bold mb-4 text-center">{formData.headerTitle || 'Header Title'}</h3>
                                             <p className="text-lg text-center">{formData.customMessage || 'Your custom message here...'}</p>
@@ -156,12 +156,12 @@ const DashBoard: React.FC = () => {
                                 {/* Form */}
                                 <div className="w-1/2 p-6 overflow-auto">
                                     <div className='flex items-center flex-col justify-between'>
-                                        <h2 className="text-2xl font-medium mb-4 text-gray-800 text-center">Create a New Space</h2>
-                                        <p className="mb-6 text-gray-600 text-xs text-center">After the Space is created, it will generate a dedicated page for collecting testimonials.</p>
+                                        <h2 className={`text-2xl font-medium mb-4text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-800'}`}>Create a New Space</h2>
+                                        <p className={`mb-6 text-xs text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}>After the Space is created, it will generate a dedicated page for collecting testimonials.</p>
                                     </div>
                                     <form>
                                         <div className="mb-4">
-                                            <label htmlFor="spaceName" className="block text-gray-700 font-medium text-xs">Space Name (required)</label>
+                                            <label htmlFor="spaceName" className={`blockfont-medium text-xs ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Space Name (required)</label>
                                             <input
                                                 type="text"
                                                 id="spaceName"
@@ -173,14 +173,14 @@ const DashBoard: React.FC = () => {
                                                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                             />
                                         </div>
-                                        <div className='text-xs text-gray-800'>
+                                        <div className={`text-sm ${isDarkTheme ? 'text-slate-400' : 'text-gray-800'} mb-4`}>
                                             <p>
                                                 <span>Public URL is : </span>
                                                 testimonial/{formData.spaceName}
                                             </p>
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="headerTitle" className="block text-gray-700 font-medium text-xs">Header Title</label>
+                                            <label htmlFor="headerTitle" className={`block font-medium text-xs ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Header Title</label>
                                             <input
                                                 type="text"
                                                 id="headerTitle"
@@ -191,7 +191,7 @@ const DashBoard: React.FC = () => {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <label htmlFor="customMessage" className="block text-gray-700 font-medium text-xs">Custom Message</label>
+                                            <label htmlFor="customMessage" className={`block ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} font-medium text-xs`}>Custom Message</label>
                                             <textarea
                                                 id="customMessage"
                                                 name="customMessage"
@@ -201,7 +201,7 @@ const DashBoard: React.FC = () => {
                                             />
                                         </div>
                                         <div className="mb-4">
-                                            <h4 className='text-md'>Questions</h4>
+                                            <h4 className={`text-md ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Questions</h4>
                                             <hr className='w-2/6 mt-2 border-t' />
                                             {formData.questions.map((question, index) => (
                                                 <div key={index} className="flex items-center mb-4">
