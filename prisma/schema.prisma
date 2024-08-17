@@ -4,26 +4,31 @@ generator client {
 
 // prisma/schema.prisma
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Space {
-  id Int @id @default(autoincrement())
-  spaceName String
-  userId String
+  id            Int      @id @default(autoincrement())
+  spaceName     String   @unique
+  userId        String
+  headerTitle   String
+  customMessage String
+  questions     String[]
   testimonials Testimonial[]
-  @@unique([userId , spaceName])
+
+  @@unique([userId, spaceName])
 }
 
 model Testimonial {
-  id Int @id @default(autoincrement())
-  spaceId Int
-  space Space @relation(fields : [spaceId],references: [id])
-  starRating Int
-  content String
-  name String
-  email String
+  id          Int      @id @default(autoincrement())
+  spaceId     Int
+  space       Space    @relation(fields: [spaceId], references: [id])
+  starRating  Int
+  content     String
+  name        String
+  email       String
   submittedAt DateTime @default(now())
+
   @@index([spaceId])
 }

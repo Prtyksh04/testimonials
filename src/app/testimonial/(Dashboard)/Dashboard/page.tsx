@@ -1,7 +1,10 @@
 'use client';
-import React, { useState, ChangeEvent, MouseEvent } from 'react';
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { auth, currentUser } from "@clerk/nextjs/server";
+import prisma from '@/db';
 
 interface FormData {
     spaceName: string;
@@ -10,8 +13,17 @@ interface FormData {
     questions: string[];
 }
 
+interface spaces {
+    spaceName: string,
+    headerTitle: string,
+    customMessage: string,
+    questions: string,
+    testimonials: string,
+}
+
 const DashBoard: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [spaces, setSpaces] = useState<spaces[]>([]);
     const [formData, setFormData] = useState<FormData>({
         spaceName: '',
         headerTitle: '',
@@ -41,10 +53,56 @@ const DashBoard: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (e: MouseEvent<HTMLButtonElement>) => {
+    useEffect(() => {
+        fetchSpaces();
+    }, [spaces])
+
+    const fetchSpaces = async () => {
+        try {
+            const response = await fetch('/api/getSpace', {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                const data: spaces[] = await response.json();
+                setSpaces(data);
+            } else {
+                console.error('Failed to fetch spaces');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleSubmit = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        // Handle form submission logic here
-        setIsModalOpen(false);
+        try {
+            const response = await fetch('/api/createSpace', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    spaceName: formData.spaceName,
+                    headerTitle: formData.headerTitle,
+                    customMessage: formData.customMessage,
+                    questions: formData.questions,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Space created : ", data);
+                setIsModalOpen(false);
+            } else {
+                const errorData = await response.json();
+                console.error("Error creating Space ", errorData.message);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleCloseModal = () => {
@@ -58,7 +116,7 @@ const DashBoard: React.FC = () => {
                 'What is the best thing about our product / service'
             ], // Reset questions
         });
-        setIsDarkTheme(false); // Reset theme
+        setIsDarkTheme(false);
         setIsModalOpen(false);
     };
 
@@ -68,10 +126,21 @@ const DashBoard: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-background">
-            <header>
-                <title>Dashboard</title>
-                <meta name="description" content="Dashboard Page" />
-                <link rel="icon" href="/favicon.ico" />
+            <header className='text-white p-4 flex items-center justify-between'>
+                <div>
+                    <img src="/testimonial-logo.svg" alt="testimonialLogo" width={150} height={150} />
+                </div>
+                <div className='text-white text-md'>
+                    <SignedIn>
+                        {/* Mount the UserButton component */}
+                        <UserButton />
+                    </SignedIn>
+                    <SignedOut>
+                        {/* Signed out users get sign in button */}
+                        <SignInButton />
+                    </SignedOut>
+                </div>
+
             </header>
             <main className="p-6 ml-14 flex flex-col">
                 <div className="flex justify-between items-center mt-20 mb-10">
@@ -106,9 +175,23 @@ const DashBoard: React.FC = () => {
                         Create a Space
                     </button>
                 </div>
-                <div className="flex items-center justify-center">
-                    <img src="/tree-dashboard.svg" alt="Tree Image" width={300} height={300} />
-                </div>
+                {spaces.length === 0 ? (
+                    <div className="flex items-center justify-center flex-col">
+                        <img src="/tree-dashboard.svg" alt="Tree Image" width={300} height={300} />
+                        <p className='text-lg text-white mt-4'>No Space available</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {spaces.map((space: spaces) => (
+                            <button>
+                                <div key={space.spaceName} className="bg-[#27292c] p-6 rounded-lg shadow-lg">
+                                    <h2 className="text-xl font-semibold text-white">{space.spaceName}</h2>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                )}
+
             </main>
 
             {/* Modal */}
