@@ -2,33 +2,38 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// prisma/schema.prisma
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Space {
-  id            Int      @id @default(autoincrement())
-  spaceName     String   @unique
+  id            Int           @id @default(autoincrement())
+  spaceName     String        @unique
   userId        String
   headerTitle   String
   customMessage String
   questions     String[]
-  testimonials Testimonial[]
+  testimonials  Testimonial[]
 
   @@unique([userId, spaceName])
 }
 
 model Testimonial {
   id          Int      @id @default(autoincrement())
-  spaceId     Int
-  space       Space    @relation(fields: [spaceId], references: [id])
+  spaceName   String // Add spaceName as a foreign key field
+  space       Space    @relation(fields: [spaceName], references: [spaceName])
   starRating  Int
   content     String
   name        String
   email       String
+  type        TestimonialType
   submittedAt DateTime @default(now())
 
-  @@index([spaceId])
+  @@index([spaceName])
+}
+
+enum TestimonialType {
+  TEXT
+  VIDEO
 }
