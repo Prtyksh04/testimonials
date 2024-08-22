@@ -13,10 +13,10 @@ async function getSpaceContent(spaceName: string) {
                 questions: true,
             }
         });
-        return spaceContent || { headerTitle: '', customMessage: '', questions: [] }; // Default return if no data
+        return spaceContent || { headerTitle: '', customMessage: '', questions: [] }; 
     } catch (error) {
         console.error("Error fetching Space Content:", error);
-        return { headerTitle: '', customMessage: '', questions: [] }; // Default return on error
+        return { headerTitle: '', customMessage: '', questions: [] };
     }
 }
 

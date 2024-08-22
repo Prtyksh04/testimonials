@@ -6,7 +6,6 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { createSpace } from '@/actions/spaces';
 import Link from 'next/link';
 
-
 interface FormData {
     spaceName: string;
     headerTitle: string;
@@ -24,9 +23,10 @@ interface spaces {
         id: number;
         spaceName: string;
         starRating: number;
-        content: string;
+        content: string | null;
         name: string;
         email: string;
+        videoUrl: string | null;
         submittedAt: Date;
     }[];
 }
@@ -70,9 +70,7 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                 createdSpace
             ]);
         }
-
     }
-
 
     const handleCloseModal = () => {
         setFormData({
@@ -100,15 +98,12 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                 </div>
                 <div className='text-white text-md'>
                     <SignedIn>
-                        {/* Mount the UserButton component */}
                         <UserButton />
                     </SignedIn>
                     <SignedOut>
-                        {/* Signed out users get sign in button */}
                         <SignInButton />
                     </SignedOut>
                 </div>
-
             </header>
             <main className="p-6 ml-14 flex flex-col">
                 <div className="flex justify-between items-center mt-20 mb-10">
@@ -162,16 +157,12 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                             </Link>
                         ))}
                     </div>
-
                 )}
-
             </main>
-
-            {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
                     <div className="relative bg-white rounded-lg shadow-lg flex flex-col w-full max-w-4xl h-auto max-h-screen overflow-hidden">
-                        {/* Close Button */}
+
                         <button
                             onClick={handleCloseModal}
                             className={`absolute top-4 right-4 z-20 ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}
@@ -179,11 +170,8 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                             <span className="sr-only">Close</span>
                             <FontAwesomeIcon icon={faTimes} />
                         </button>
-
-                        {/* Modal Content */}
                         <div className="flex-1 flex overflow-auto">
                             <div className={`flex w-full h-full ${isDarkTheme ? 'bg-gray-900' : 'bg-gray-50'}`}>
-                                {/* Live Preview */}
                                 <div className="w-1/2 p-6 border-r border-gray-300 overflow-auto min-h-[500px] z-10 relative">
                                     <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
                                     <h2 className="text-2xl font-bold mb-4 text-live">Live Preview</h2>
@@ -209,7 +197,6 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                                         </div>
                                     </div>
                                 </div>
-                                {/* Form */}
                                 <div className="w-1/2 p-6 overflow-auto">
                                     <div className='flex items-center flex-col justify-between'>
                                         <h2 className={`text-2xl font-medium mb-4text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-800'}`}>Create a New Space</h2>

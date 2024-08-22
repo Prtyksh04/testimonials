@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { FaTrash, FaSearch, FaVideo, FaFileAlt } from 'react-icons/fa';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Transition } from '@headlessui/react';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 
@@ -13,15 +13,17 @@ interface Testimonial {
     submittedAt: Date;
 }
 interface SpacePageProps {
-    space: string | undefined;
-    testimonial: Testimonial[];
+    space: string
 }
 
-const SpacePage: React.FC<SpacePageProps> = ({ space, testimonial}) => {
+const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
+    console.log("props Space : ", space );
     const url = `http://localhost:4000/${space}`
     const [activeButton, setActiveButton] = useState<string | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [menuVisible, setMenuVisible] = useState<number | null>(null);
+    const [testimonial, setTestimonials] = useState<Testimonial[]>([]);
+    const [liked, setLiked] = useState(Array(testimonial.length).fill(false));
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -53,6 +55,26 @@ const SpacePage: React.FC<SpacePageProps> = ({ space, testimonial}) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    const fetchTestimonials = useCallback(async () => {
+        try {
+            const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
+            const data: Testimonial[] = await response.json();
+            setTestimonials(data);
+        } catch (error) {
+            console.error('Error Fetching Testimonials:', error);
+        }
+    }, [space]);
+
+    useEffect(() => {
+        fetchTestimonials();
+    }, [space]);
+
+    const toggleLike = (index :number) => {
+        const updatedLikes = [...liked];
+        updatedLikes[index] = !updatedLikes[index];
+        setLiked(updatedLikes);
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -158,12 +180,20 @@ const SpacePage: React.FC<SpacePageProps> = ({ space, testimonial}) => {
                                 placeholder="Search by name, email, or testimonial keyword"
                             />
                         </div>
-                        <button
-                            className="ml-6 bg-gray-200 text-gray-600 px-6 py-3 rounded-lg hover:bg-gray-300"
-                            onClick={toggleDropdown}
-                        >
-                            Options
-                        </button>
+                        <div className="flex flex-col items-center">
+                            <button
+                                className="bg-background text-gray-200 px-3 py-2 rounded-lg hover:bg-gray-800 mb-4"
+                                onClick={fetchTestimonials}
+                            >
+                                <FaSyncAlt className="text-gray-600" />
+                            </button>
+                            <button
+                                className="bg-gray-200 text-gray-600 px-6 py-3 rounded-lg hover:bg-gray-300"
+                                onClick={toggleDropdown}
+                            >
+                                Options
+                            </button>
+                        </div>
                     </div>
                     <Transition
                         show={isDropdownOpen}
@@ -202,12 +232,24 @@ const SpacePage: React.FC<SpacePageProps> = ({ space, testimonial}) => {
                                     key={index}
                                     className="bg-[#27292c] p-6 rounded-lg relative flex flex-col"
                                 >
-                                    <button
-                                        className="absolute top-2 right-2 p-2 bg-gray-500 text-white rounded-full"
-                                        onClick={() => toggleMenu(index)}
-                                    >
-                                        <FaTrash className="w-4 h-4" />
-                                    </button>
+                                    <div className="absolute top-2 right-2 flex space-x-2">
+                                        <button
+                                            className="p-2 bg-[#27292c] text-white rounded-full"
+                                            onClick={() => toggleLike(index)}
+                                        >
+                                            {liked[index] ? (
+                                                <FaHeart className="w-4 h-4 text-red-500" />
+                                            ) : (
+                                                <FaRegHeart className="w-4 h-4 text-white" />
+                                            )}
+                                        </button>
+                                        <button
+                                            className="p-2 bg-gray-500 text-white rounded-full"
+                                            onClick={() => toggleMenu(index)}
+                                        >
+                                            <FaTrash className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                     <div className='flex items-center mb-2'>
                                         {testimonial.type === 'VIDEO' ? (
                                             <FaVideo className="text-blue-500 mr-2" />
@@ -219,7 +261,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space, testimonial}) => {
                                     <p className="text-gray-400 text-sm">{testimonial.email}</p>
                                     <p className="text-white mt-4">{testimonial.content}</p>
                                     <div className='flex items-center justify-between mt-4'>
-                                        <p className="text-gray-400 text-xs">{testimonial.submittedAt.toLocaleString()}</p>
+                                        <p className="text-gray-400 text-xs">{new Date(testimonial.submittedAt).toLocaleString()}</p>
                                         <div className="flex">
                                             <span className="text-yellow-400 text-xl">
                                                 {"★".repeat(testimonial.starRating)}

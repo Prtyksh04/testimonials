@@ -11,11 +11,14 @@ export async function createTestimonial(spaceName : string ,starRating : number 
                 name : name,
                 email:email,
                 type:type,
-                // submittedAt:submittedAt
+                submittedAt: new Date()
             }
         });
+        return createTestimonial;
     } catch (error) {
         console.error("Error Creating Testimonial : ",error);
         throw new Error("Error Creating Testimonial");
     }
 }
+
+

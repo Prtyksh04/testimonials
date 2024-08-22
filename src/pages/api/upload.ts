@@ -1,77 +1,106 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import formidable, { IncomingForm, File } from 'formidable';
+import { IncomingForm, File } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import ffmpegStatic from 'ffmpeg-static';
+import { PrismaClient } from '@prisma/client';
 
-// Set the path for ffmpeg and check if the path is valid
-const ffmpegPath = ffmpegStatic || '/path/to/ffmpeg'; // Use a fallback path if necessary
+const ffmpegPath = ffmpegStatic || '/path/to/ffmpeg';
 ffmpeg.setFfmpegPath(ffmpegPath);
 
-// Disable body parsing for this API route
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+const prisma = new PrismaClient();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const form = new IncomingForm();
   const uploadDir = path.join(process.cwd(), 'public', 'video');
 
-  // Ensure the upload directory exists
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  form.parse(req, (err, fields, files) => {
+  form.parse(req, async (err, fields, files) => {
     if (err) {
       return res.status(500).json({ error: 'Error parsing the files' });
     }
 
     const videoFiles = files.file as File[] | undefined;
+    const name = Array.isArray(fields.name) ? fields.name[0] : undefined;
+    const email = Array.isArray(fields.email) ? fields.email[0] : undefined;
+    const space = Array.isArray(fields.space) ? fields.space[0] : undefined;
 
     if (!videoFiles || !Array.isArray(videoFiles) || videoFiles.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    // Handle each file
-    videoFiles.forEach((file, index) => {
-      const inputPath = file.filepath;
-      const videoId = new Date().getTime(); // Use a timestamp as a unique identifier
-      const outputPath = path.join(uploadDir, `${videoId}`);
-      const hlsPath = path.join(outputPath, 'index.m3u8');
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required' });
+    }
 
-      if (!fs.existsSync(outputPath)) {
-        fs.mkdirSync(outputPath, { recursive: true });
-      }
+    try {
+      // Process each video file
+      for (const file of videoFiles) {
+        const inputPath = file.filepath;
+        const videoId = new Date().getTime(); 
+        const outputPath = path.join(uploadDir, `${videoId}`);
+        const hlsPath = path.join(outputPath, 'index.m3u8');
 
-      // Process the video with ffmpeg
-      const ffmpegCommand = `ffmpeg -i "${inputPath}" -codec:v libx264 -codec:a aac -hls_time 10 -hls_playlist_type vod -hls_segment_filename "${outputPath}/segment%03d.ts" -start_number 0 "${hlsPath}"`;
+        if (!fs.existsSync(outputPath)) {
+          fs.mkdirSync(outputPath, { recursive: true });
+        }
 
-      ffmpeg(inputPath)
-        .output(outputPath + '/index.m3u8')
-        .outputOptions([
-          '-codec:v libx264',
-          '-codec:a aac',
-          '-hls_time 10',
-          '-hls_playlist_type vod',
-          '-hls_segment_filename ' + path.join(outputPath, 'segment%03d.ts'),
-          '-start_number 0'
-        ])
-        .on('end', () => {
-          fs.unlinkSync(inputPath); // Remove the original file
-          res.status(200).json({
-            message: 'Video converted to HLS format',
+        // Convert video to HLS format
+        await new Promise<void>((resolve, reject) => {
+          ffmpeg(inputPath)
+            .output(hlsPath)
+            .outputOptions([
+              '-codec:v libx264',
+              '-codec:a aac',
+              '-hls_time 10',
+              '-hls_playlist_type vod',
+              '-hls_segment_filename ' + path.join(outputPath, 'segment%03d.ts'),
+              '-start_number 0'
+            ])
+            .on('end', () => {
+              fs.unlinkSync(inputPath); 
+              resolve();
+            })
+            .on('error', (error: Error) => {
+              reject(error);
+            })
+            .run();
+        });
+        console.log(" space : " , space);
+        console.log(" email : " , email);
+        console.log(" name : " , name);
+
+
+        // Save data to the database
+        await prisma.testimonial.create({
+          data: {
+            spaceName: space as string,
+            starRating: 5,  
+            name,
+            email,
             videoUrl: `/video/${videoId}/index.m3u8`,
-            videoId: videoId.toString()
-          });
-        })
-        .on('error', (error: Error) => {
-          res.status(500).json({ error: 'Error processing video', details: error.message });
-        })
-        .run();
-    });
+            type:'VIDEO'
+          },
+        });
+
+        res.status(200).json({
+          message: 'Video converted to HLS format and data saved',
+          videoUrl: `/video/${videoId}/index.m3u8`,
+          videoId: videoId.toString()
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Error processing video', details: (error as Error).message });
+    }
   });
 }

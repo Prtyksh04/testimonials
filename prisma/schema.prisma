@@ -21,13 +21,14 @@ model Space {
 
 model Testimonial {
   id          Int      @id @default(autoincrement())
-  spaceName   String // Add spaceName as a foreign key field
+  spaceName   String
   space       Space    @relation(fields: [spaceName], references: [spaceName])
   starRating  Int
-  content     String
+  content     String?
   name        String
   email       String
   type        TestimonialType
+  videoUrl    String? // Add this field for storing video URLs
   submittedAt DateTime @default(now())
 
   @@index([spaceName])
