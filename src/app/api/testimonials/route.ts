@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
                 name: true,
                 email: true,
                 content: true,
-                submittedAt: true
+                submittedAt: true,
+                videoUrl:true
             }
         });
 

@@ -3,21 +3,23 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Transition } from '@headlessui/react';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import VideoPlayer from '../VideoPlayer';
 
 interface Testimonial {
     type: 'VIDEO' | 'TEXT';
     starRating: number;
     name: string;
     email: string;
-    content: string;
+    content?: string;
     submittedAt: Date;
+    videoUrl?: string
 }
 interface SpacePageProps {
     space: string
 }
 
 const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
-    console.log("props Space : ", space );
+    console.log("props Space : ", space);
     const url = `http://localhost:4000/${space}`
     const [activeButton, setActiveButton] = useState<string | null>(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -48,6 +50,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         }
     };
 
+
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
 
@@ -70,7 +73,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         fetchTestimonials();
     }, [space]);
 
-    const toggleLike = (index :number) => {
+    const toggleLike = (index: number) => {
         const updatedLikes = [...liked];
         updatedLikes[index] = !updatedLikes[index];
         setLiked(updatedLikes);
@@ -259,7 +262,16 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                                         <h3 className="text-white font-bold text-lg">{testimonial.name}</h3>
                                     </div>
                                     <p className="text-gray-400 text-sm">{testimonial.email}</p>
-                                    <p className="text-white mt-4">{testimonial.content}</p>
+                                    {
+                                        testimonial.type === "TEXT" && (
+                                            <p className="text-white mt-4">{testimonial.content}</p>
+                                        )
+                                    }
+                                    {
+                                        testimonial.type === "VIDEO" && (
+                                            <VideoPlayer videoUrl={testimonial.videoUrl} width={600} height={400}/>
+                                        )
+                                    }
                                     <div className='flex items-center justify-between mt-4'>
                                         <p className="text-gray-400 text-xs">{new Date(testimonial.submittedAt).toLocaleString()}</p>
                                         <div className="flex">
