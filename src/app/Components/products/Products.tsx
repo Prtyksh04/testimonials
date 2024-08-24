@@ -269,7 +269,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                                     }
                                     {
                                         testimonial.type === "VIDEO" && (
-                                            <VideoPlayer videoUrl={testimonial.videoUrl} width={600} height={400}/>
+                                            <VideoPlayer videoUrl={testimonial.videoUrl} width={300} height={150} />
                                         )
                                     }
                                     <div className='flex items-center justify-between mt-4'>

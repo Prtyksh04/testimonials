@@ -11,7 +11,7 @@ interface VideoJSProps {
 
 export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , height }) => {
   const videoRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<any>(null);  // Typing as 'any' to avoid TypeScript issues
+  const playerRef = useRef<any>(null); 
 
   useEffect(() => {
     if (!videoUrl || !videoRef.current) return;
@@ -27,8 +27,8 @@ export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , he
         controls: true,
         autoplay: false,
         preload: 'auto',
-        width : 300,
-        height : 150,
+        width : width,
+        height : height,
         sources: [{
           src: videoUrl,
           type: 'application/x-mpegURL',
@@ -64,7 +64,7 @@ export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , he
   return (
     <div>
       {videoUrl ? (
-        <div data-vjs-player>
+        <div data-vjs-player className='mt-2'>
           <div ref={videoRef} />
         </div>
       ) : (

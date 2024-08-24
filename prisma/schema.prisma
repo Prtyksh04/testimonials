@@ -30,6 +30,7 @@ model Testimonial {
   type        TestimonialType
   videoUrl    String? // Add this field for storing video URLs
   submittedAt DateTime @default(now())
+  permission Boolean
 
   @@index([spaceName])
 }

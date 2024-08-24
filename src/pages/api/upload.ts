@@ -34,6 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const name = Array.isArray(fields.name) ? fields.name[0] : undefined;
     const email = Array.isArray(fields.email) ? fields.email[0] : undefined;
     const space = Array.isArray(fields.space) ? fields.space[0] : undefined;
+    const uploadPermission = fields.permission ? fields.permission.toString() === 'true' : false;
 
     if (!videoFiles || !Array.isArray(videoFiles) || videoFiles.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
@@ -76,11 +77,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
             .run();
         });
-        console.log(" space : " , space);
-        console.log(" email : " , email);
-        console.log(" name : " , name);
-
-
         // Save data to the database
         await prisma.testimonial.create({
           data: {
@@ -89,7 +85,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             name,
             email,
             videoUrl: `/video/${videoId}/index.m3u8`,
-            type:'VIDEO'
+            type:'VIDEO',
+            permission :true
           },
         });
 

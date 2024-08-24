@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faStar } from '@fortawesome/free-solid-svg-icons';
 import { createTestimonial } from '@/actions/testimonial';
 import UploadComponent from '../VideoRecorder';
-import { space } from 'postcss/lib/list';
 
 interface spaceContent {
     headerTitle: string
@@ -21,7 +20,6 @@ const TestimonialPage: React.FC<spaceContent> = ({ headerTitle, customMessage, q
     const [content, setContent] = useState<string>('');
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
-    const [permission, setPermission] = useState<boolean>(false);
 
     const handleOpenModal = () => setIsTextModalOpen(true);
     const handleCloseModal = () => {
@@ -30,13 +28,12 @@ const TestimonialPage: React.FC<spaceContent> = ({ headerTitle, customMessage, q
         setContent('');
         setName('');
         setEmail('');
-        setPermission(false);
     };
 
     const handleSubmitText = async (e: MouseEvent<HTMLButtonElement>) => {
         const type = 'TEXT'
         e.preventDefault();
-        const createdTestimonial = await createTestimonial(spaceName, starRating, content, name, email, type);
+        await createTestimonial(spaceName, starRating, content, name, email, type);
         handleCloseModal();
     };
 
@@ -59,7 +56,7 @@ const TestimonialPage: React.FC<spaceContent> = ({ headerTitle, customMessage, q
             </ul>
             <div className="flex items-center justify-between gap-6 mt-8">
                 <button
-                onClick={handleOpenVideoModal}
+                    onClick={handleOpenVideoModal}
                     className="bg-gray-800 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-700 flex items-center"
                 >
                     Upload a video
@@ -127,18 +124,6 @@ const TestimonialPage: React.FC<spaceContent> = ({ headerTitle, customMessage, q
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
                                         required
                                     />
-                                </div>
-                                <div className="mb-4 flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id="permission"
-                                        checked={permission}
-                                        onChange={() => setPermission(!permission)}
-                                        className="mr-2"
-                                    />
-                                    <label htmlFor="permission" className="text-gray-700 text-sm">
-                                        I give permission to use this testimonial across social channels and other marketing efforts
-                                    </label>
                                 </div>
                                 <div className="flex justify-end">
                                     <button

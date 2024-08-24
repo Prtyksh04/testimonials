@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
                 email: true,
                 content: true,
                 submittedAt: true,
-                videoUrl:true
+                videoUrl:true,
+                id:true
             }
         });
 

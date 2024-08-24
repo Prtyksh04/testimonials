@@ -11,6 +11,7 @@ export async function createTestimonial(spaceName : string ,starRating : number 
                 name : name,
                 email:email,
                 type:type,
+                permission:true,
                 submittedAt: new Date()
             }
         });

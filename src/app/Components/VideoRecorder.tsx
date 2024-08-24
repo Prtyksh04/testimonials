@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, ChangeEvent } from 'react';
 
-interface SpaceNameprops{
-  space : string
+interface SpaceNameprops {
+  space: string
 }
 
-const UploadComponent: React.FC<SpaceNameprops> = ({space}) => {
+const UploadComponent: React.FC<SpaceNameprops> = ({ space }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
@@ -30,13 +30,12 @@ const UploadComponent: React.FC<SpaceNameprops> = ({space}) => {
     const formData = new FormData();
     files.forEach(file => formData.append('file', file));
     formData.append('name', name);
-    formData.append('space',space)
+    formData.append('space', space)
     formData.append('email', email);
-
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
-        body: formData,
+        body: formData ,
       });
 
       if (!response.ok) {
