@@ -1,15 +1,7 @@
 import React from "react";
 import TestimonialCard from "../TestimonialCard/TestimonialCard";
+import { Testimonial } from "@/types/types";
 
-interface Testimonial {
-    id: number;
-    type: 'VIDEO' | 'TEXT';
-    starRating: number;
-    name: string;
-    email: string;
-    content?: string;
-    videoUrl?: string;
-}
 
 interface MasonryLayoutProps {
     testimonials: Testimonial[];

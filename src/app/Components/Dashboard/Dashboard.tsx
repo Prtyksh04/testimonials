@@ -5,31 +5,7 @@ import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icon
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { createSpace } from '@/actions/spaces';
 import Link from 'next/link';
-
-interface FormData {
-    spaceName: string;
-    headerTitle: string;
-    customMessage: string;
-    questions: string[];
-}
-
-interface spaces {
-    id: number,
-    spaceName: string,
-    headerTitle: string,
-    customMessage: string,
-    questions: string[],
-    testimonials?: {
-        id: number;
-        spaceName: string;
-        starRating: number;
-        content: string | null;
-        name: string;
-        email: string;
-        videoUrl: string | null;
-        submittedAt: Date;
-    }[];
-}
+import { spaces , FormData } from '@/types/types';
 
 const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

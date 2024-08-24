@@ -1,27 +1,31 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react';
 import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Transition } from '@headlessui/react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { getSpaceContent , editSpaceContent } from '@/actions/spaces';
 import VideoPlayer from '../VideoPlayer';
+import { FormData ,spaces , SpacePageProps , Testimonial} from '@/types/types';
 
-interface Testimonial {
-    type: 'VIDEO' | 'TEXT';
-    starRating: number;
-    name: string;
-    email: string;
-    content?: string;
-    submittedAt: Date;
-    videoUrl?: string
-}
-interface SpacePageProps {
-    space: string
-}
-
-const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
+const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,customMessage }) => {
     console.log("props Space : ", space);
     const url = `http://localhost:4000/${space}`
     const [activeButton, setActiveButton] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
+    const [spacesUpdated, setSpacesUpdated] = useState<spaces[]>([]);
+    const [formData, setFormData] = useState<FormData>({
+        spaceName: '',
+        headerTitle: '',
+        customMessage: '',
+        questions: [
+            'How has our product / service helped you?',
+            'Who are you / what are you working on?',
+            'What is the best thing about our product / service'
+        ]
+    });
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [menuVisible, setMenuVisible] = useState<number | null>(null);
     const [testimonial, setTestimonials] = useState<Testimonial[]>([]);
@@ -49,6 +53,21 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
             setMenuVisible(null);
         }
     };
+
+    useEffect(() => {
+        const fetchSpaceContent = async () => {
+            const response = await getSpaceContent(space);
+            setFormData((prevData) => ({
+                ...prevData,
+                spaceName: space || "",
+                headerTitle : response.headerTitle,
+                customMessage: response.customMessage,
+                questions : response.questions,
+            }));
+        }
+
+        fetchSpaceContent();
+    },[isModalOpen]);
 
 
     useEffect(() => {
@@ -78,6 +97,52 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         updatedLikes[index] = !updatedLikes[index];
         setLiked(updatedLikes);
     };
+
+    const handleCloseModal = () => {
+        setFormData({
+            spaceName: '',
+            headerTitle: '',
+            customMessage: '',
+            questions: [
+                'How has our product / service helped you?',
+                'Who are you / what are you working on?',
+                'What is the best thing about our product / service'
+            ],
+        });
+        setIsDarkTheme(false);
+        setIsModalOpen(false);
+    };
+
+    const handleQuestionChange = (index: number, value: string) => {
+        const newQuestions = [...formData.questions];
+        newQuestions[index] = value;
+        setFormData((prevData) => ({
+            ...prevData,
+            questions: newQuestions,
+        }));
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+    const handleSubmit = async () => {
+        const editedSpace = await editSpaceContent(formData.spaceName, formData.headerTitle, formData.customMessage, formData.questions);
+        if (editedSpace) {
+            setSpacesUpdated((prev) => [
+                ...prev,
+                editedSpace
+            ]);
+        }
+    }
+
+    const toggleTheme = () => {
+        setIsDarkTheme(prev => !prev);
+    };
+
 
     return (
         <div className="min-h-screen bg-background">
@@ -112,6 +177,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                             </a>
                         </p>
                         <button
+                            onClick={() => { setIsModalOpen(true) }}
                             className="ml-6 flex items-center bg-gray-200 text-gray-600 px-6 py-3 rounded-lg hover:bg-gray-300"
                         >
                             Edit Space
@@ -302,6 +368,123 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                                     )}
                                 </div>
                             ))}
+                        </div>
+                    )}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+                            <div className="relative bg-white rounded-lg shadow-lg flex flex-col w-full max-w-4xl h-auto max-h-screen overflow-hidden">
+
+                                <button
+                                    onClick={handleCloseModal}
+                                    className={`absolute top-4 right-4 z-20 ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}
+                                >
+                                    <span className="sr-only">Close</span>
+                                    <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                                <div className="flex-1 flex overflow-auto">
+                                    <div className={`flex w-full h-full ${isDarkTheme ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                                        <div className="w-1/2 p-6 border-r border-gray-300 overflow-auto min-h-[500px] z-10 relative">
+                                            <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+                                            <h2 className="text-2xl font-bold mb-4 text-live">Live Preview</h2>
+                                            <div className={`p-6 rounded-lg shadow-md border border-gray-200 relative z-10 ${isDarkTheme ? 'bg-background text-white' : 'bg-white'}`}>
+                                                <div className='flex items-center justify-center flex-col mb-2'>
+                                                    <h3 className="text-3xl font-bold mb-4 text-center">{formData.headerTitle || 'Header Title'}</h3>
+                                                    <p className="text-lg text-center">{formData.customMessage || 'Your custom message here...'}</p>
+                                                </div>
+                                                <h4 className='text-md pt-4'>Questions</h4>
+                                                <hr className='w-2/6 mt-2 border-t' />
+                                                <ul className="list-disc list-inside mt-2 text-sm">
+                                                    {formData.questions.map((question, index) => (
+                                                        <li key={index}>{question || `Question ${index + 1}`}</li>
+                                                    ))}
+                                                </ul>
+                                                <div className="mt-6 flex flex-col space-y-4">
+                                                    <button className="w-full bg-black text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-800 transition-colors duration-300">
+                                                        Upload a Video
+                                                    </button>
+                                                    <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300">
+                                                        Send in Text
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="w-1/2 p-6 overflow-auto">
+                                            <div className='flex items-center flex-col justify-between'>
+                                                <h2 className={`text-2xl font-medium mb-4text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-800'}`}>Edit Space</h2>
+                                                <p className={`mb-6 text-xs text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}>After the Space is Edited, it will show a Changes on the Dedicated Page for testimonial</p>
+                                            </div>
+                                            <form>
+                                                <div className="mb-4">
+                                                    <label htmlFor="spaceName" className={`blockfont-medium text-xs ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Space Name (required)</label>
+                                                    <input
+                                                        type="text"
+                                                        id="spaceName"
+                                                        name="spaceName"
+                                                        value={formData.spaceName}
+                                                        onChange={handleChange}
+                                                        autoComplete='off'
+                                                        required
+                                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                                <div className={`text-sm ${isDarkTheme ? 'text-slate-400' : 'text-gray-800'} mb-4`}>
+                                                    <p>
+                                                        <span>Public URL is : </span>
+                                                        testimonial/{formData.spaceName}
+                                                    </p>
+                                                </div>
+                                                <div className="mb-4">
+                                                    <label htmlFor="headerTitle" className={`block font-medium text-xs ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Header Title</label>
+                                                    <input
+                                                        type="text"
+                                                        id="headerTitle"
+                                                        name="headerTitle"
+                                                        value={formData.headerTitle}
+                                                        onChange={handleChange}
+                                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <label htmlFor="customMessage" className={`block ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} font-medium text-xs`}>Custom Message</label>
+                                                    <textarea
+                                                        id="customMessage"
+                                                        name="customMessage"
+                                                        value={formData.customMessage}
+                                                        onChange={handleChange}
+                                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                                <div className="mb-4">
+                                                    <h4 className={`text-md ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Questions</h4>
+                                                    <hr className='w-2/6 mt-2 border-t' />
+                                                    {formData.questions.map((question, index) => (
+                                                        <div key={index} className="flex items-center mb-4">
+                                                            <input
+                                                                type="text"
+                                                                value={question}
+                                                                onChange={(e) => handleQuestionChange(index, e.target.value)}
+                                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button
+                                                    onClick={handleSubmit}
+                                                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300"
+                                                >
+                                                    Create Space
+                                                </button>
+                                            </form>
+                                            <button
+                                                onClick={toggleTheme}
+                                                className={`mt-4 flex items-center justify-center px-6 py-2 rounded-lg border border-gray-300 bg-white shadow-md hover:bg-gray-200`}
+                                            >
+                                                <FontAwesomeIcon icon={isDarkTheme ? faSun : faMoon} className="mr-2" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

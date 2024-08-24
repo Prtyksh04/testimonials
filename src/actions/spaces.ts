@@ -23,3 +23,37 @@ export async function createSpace(spaceName : string , headerTitle : string , cu
         throw new Error("Error Creating Space");
     }
 }
+
+export async function getSpaceContent(spaceName: string) {
+    try {
+        const getSpaceContent = await prisma.space.findFirst({
+            where :{
+                spaceName,
+            },
+            select :{
+                headerTitle : true,
+                customMessage : true,
+                questions : true,
+            }
+        });
+        console.log("getSpaceContent : " , getSpaceContent);
+        return getSpaceContent|| { headerTitle: '', customMessage: '', questions: [] }; 
+    } catch (error) {
+        console.error("Error Creating Testimonial : ", error);
+        throw new Error("Error Creating Testimonial");
+    }
+}
+
+export async function editSpaceContent(spaceName : string , headerTitle : string , customMessage : string , questions : string[] ){
+    const editSpaceContent = await prisma.space.update({
+        where :{
+            spaceName,
+        },
+        data :{
+            headerTitle,
+            customMessage,
+            questions,
+        }
+    })
+    return editSpaceContent;
+}

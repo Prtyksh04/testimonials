@@ -1,14 +1,6 @@
 import React from "react";
 import VideoJS from "../VideoPlayer";
-
-interface Testimonial {
-    type: 'VIDEO' | 'TEXT';
-    starRating: number;
-    name: string;
-    email: string;
-    content?: string;
-    videoUrl?: string;
-}
+import { Testimonial } from "@/types/types";
 
 interface TestimonialCardProps {
     testimonial: Testimonial;

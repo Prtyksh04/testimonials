@@ -4,14 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faStar } from '@fortawesome/free-solid-svg-icons';
 import { createTestimonial } from '@/actions/testimonial';
 import UploadComponent from '../VideoRecorder';
-
-interface spaceContent {
-    headerTitle: string
-    customMessage: string
-    questions: string[]
-    spaceName: string,
-}
-
+import { spaceContent } from '@/types/types';
 
 const TestimonialPage: React.FC<spaceContent> = ({ headerTitle, customMessage, questions, spaceName }) => {
     const [isTextModalOpen, setIsTextModalOpen] = useState<boolean>(false);
