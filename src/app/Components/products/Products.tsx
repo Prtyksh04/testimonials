@@ -3,8 +3,8 @@ import React, { useState, useEffect, useRef, useCallback, ChangeEvent } from 're
 import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { Transition } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { faTimes,faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import Header from '../Header';
 import {editSpaceContent } from '@/actions/spaces';
 import { getSpaceContent } from '@/actions/getSpaceContent';
 import VideoPlayer from '../VideoPlayer';
@@ -56,17 +56,6 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-
-    // const fetchTestimonials = useCallback(async () => {
-    //     try {
-    //         const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
-    //         const data: Testimonial[] = await response.json();
-    //         setTestimonials(data);
-    //     } catch (error) {
-    //         console.error('Error Fetching Testimonials:', error);
-    //     }
-    // }, [space]);
-
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
@@ -177,18 +166,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
 
     return (
         <div className="min-h-screen bg-background">
-            <header className='text-white p-4 flex items-center justify-between'>
-                <div>
-                    <Image src="/testimonial-logo.svg" alt=''height={150} width={150}/>
-                </div>
-                <SignedIn>
-                    <UserButton />
-                </SignedIn>
-                <SignedOut>
-                    <SignInButton />
-                </SignedOut>
-
-            </header>
+            <Header />
             <hr className="border-gray-700 mb-6" />
             <header className="px-8 py-6 relative">
                 <div className="flex flex-col">
