@@ -18,6 +18,7 @@ const config: Config = {
         'background' : '#151719',
         'live' : '#7aa692',
         'inbox-hover':'#33363a',
+        'buttoColor':'#5d5dff', 
       }
     },
   },

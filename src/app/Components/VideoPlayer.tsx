@@ -34,7 +34,6 @@ export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , he
           type: 'application/x-mpegURL',
         }],
       }, () => {
-        videojs.log('player is ready');
         if (onReady) {
           onReady(player);
         }

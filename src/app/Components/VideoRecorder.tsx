@@ -43,7 +43,6 @@ const UploadComponent: React.FC<SpaceNameprops> = ({ space }) => {
       }
 
       const data = await response.json();
-      console.log('Response Data:', data);
       setMessage('Upload successful');
     } catch (error) {
       setMessage('Error uploading files: ' + (error as Error).message);
@@ -67,7 +66,7 @@ const UploadComponent: React.FC<SpaceNameprops> = ({ space }) => {
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="email" className="block text-gray-200">email <span className="text-red-500">*</span></label>
+        <label htmlFor="email" className="block text-gray-200">Email <span className="text-red-500">*</span></label>
         <input
           type="email"
           id="email"
@@ -82,8 +81,9 @@ const UploadComponent: React.FC<SpaceNameprops> = ({ space }) => {
         accept="video/*"
         onChange={handleFileChange}
         multiple
-        className="block w-full text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none mb-4"
+        className="block w-full text-sm text-gray-300 border border-gray-600 rounded-lg cursor-pointer bg-gray-700 focus:outline-none mb-4 "
       />
+      <p className='text-gray-500 mt-2 mb-2 text-semibold'>Each video have to less than equal to 30 Sec</p>
       <button
         onClick={handleUpload}
         disabled={uploading}

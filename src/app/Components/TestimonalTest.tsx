@@ -1,9 +1,12 @@
 import React from 'react'
 import TestimonialWidget from './TestimonialWidget/TestimonialWidget'
-const TestimonalTest: React.FC = () => {
+interface SpaceNameprops {
+    spaceName : string ;
+}
+const TestimonalTest: React.FC<SpaceNameprops> = ({spaceName}) => {
     return (
         <div className='m-2'>
-            <TestimonialWidget spaceName={"plura"} />
+            <TestimonialWidget spaceName={spaceName} />
         </div>
     )
 }

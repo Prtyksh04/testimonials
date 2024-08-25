@@ -5,18 +5,18 @@ import { Transition } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
-import { getSpaceContent , editSpaceContent } from '@/actions/spaces';
+import { getSpaceContent, editSpaceContent } from '@/actions/spaces';
 import VideoPlayer from '../VideoPlayer';
-import { FormData ,spaces , SpacePageProps , Testimonial} from '@/types/types';
+import { FormData, spaces, SpacePageProps, Testimonial } from '@/types/types';
+import { deleteTestimonial } from '@/actions/testimonial';
 
-const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,customMessage }) => {
-    console.log("props Space : ", space);
+const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
     const url = `http://localhost:4000/${space}`
     const [activeButton, setActiveButton] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
     const [spacesUpdated, setSpacesUpdated] = useState<spaces[]>([]);
-    const [formData, setFormData] = useState<FormData>({
+    const [formData, setFormData] = useState({
         spaceName: '',
         headerTitle: '',
         customMessage: '',
@@ -29,20 +29,63 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [menuVisible, setMenuVisible] = useState<number | null>(null);
     const [testimonial, setTestimonials] = useState<Testimonial[]>([]);
-    const [liked, setLiked] = useState(Array(testimonial.length).fill(false));
+    const [isWallofLove, setIsWallofLove] = useState<boolean>(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const menuRef = useRef<HTMLDivElement | null>(null);
 
+    useEffect(() => {
+        const fetchSpaceContent = async () => {
+            const response = await getSpaceContent(space);
+            setFormData((prevData) => ({
+                ...prevData,
+                spaceName: space || "",
+                headerTitle: response.headerTitle,
+                customMessage: response.customMessage,
+                questions: response.questions,
+            }));
+        };
+
+        fetchSpaceContent();
+    }, [space]);
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // const fetchTestimonials = useCallback(async () => {
+    //     try {
+    //         const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
+    //         const data: Testimonial[] = await response.json();
+    //         setTestimonials(data);
+    //     } catch (error) {
+    //         console.error('Error Fetching Testimonials:', error);
+    //     }
+    // }, [space]);
+
+    useEffect(() => {
+        const fetchTestimonials = async () => {
+            try {
+                const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
+                const data: Testimonial[] = await response.json();
+                setTestimonials(data);
+            } catch (error) {
+                console.error('Error Fetching Testimonials:', error);
+            }
+        }
+        fetchTestimonials();
+    }, [space]);
+
     const handleButtonClick = (buttonName: string) => {
+        if (buttonName === 'Wall of Love') {
+            setIsWallofLove(true);
+        }
+        if(buttonName === 'Wall of Love Page'){
+            window.location.href = url;
+        }
         setActiveButton(buttonName);
-    };
-
-    const toggleDropdown = () => {
-        setIsDropdownOpen(prev => !prev);
-    };
-
-    const toggleMenu = (index: number) => {
-        setMenuVisible(prev => prev === index ? null : index);
     };
 
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,48 +97,40 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
         }
     };
 
-    useEffect(() => {
-        const fetchSpaceContent = async () => {
-            const response = await getSpaceContent(space);
-            setFormData((prevData) => ({
-                ...prevData,
-                spaceName: space || "",
-                headerTitle : response.headerTitle,
-                customMessage: response.customMessage,
-                questions : response.questions,
-            }));
-        }
-
-        fetchSpaceContent();
-    },[isModalOpen]);
-
-
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
-    const fetchTestimonials = useCallback(async () => {
+    const handleTestimonialDelete = async (index: number) => {
         try {
-            const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
-            const data: Testimonial[] = await response.json();
-            setTestimonials(data);
+            const deletedTestimonial = await deleteTestimonial(testimonial[index].id);
+            setTestimonials((prevTestimonials) => {
+                const updatedTestimonials = [...prevTestimonials];
+                updatedTestimonials.splice(index, 1);
+                return updatedTestimonials;
+            });
+            setMenuVisible(null);
         } catch (error) {
-            console.error('Error Fetching Testimonials:', error);
+            console.error('Error deleting testimonial:', error);
         }
-    }, [space]);
+    };
 
-    useEffect(() => {
-        fetchTestimonials();
-    }, [space]);
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
 
-    const toggleLike = (index: number) => {
-        const updatedLikes = [...liked];
-        updatedLikes[index] = !updatedLikes[index];
-        setLiked(updatedLikes);
+    const handleSubmit = async () => {
+        try {
+            const editedSpace = await editSpaceContent(formData.spaceName, formData.headerTitle, formData.customMessage, formData.questions);
+            if (editedSpace) {
+                setSpacesUpdated((prev) => [
+                    ...prev,
+                    editedSpace
+                ]);
+            }
+        } catch (error) {
+            console.error('Error editing space:', error);
+        }
     };
 
     const handleCloseModal = () => {
@@ -121,23 +156,17 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
             questions: newQuestions,
         }));
     };
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+    const handleWallOfCloseModal = () => {
+        setIsWallofLove(false);
     };
-    const handleSubmit = async () => {
-        const editedSpace = await editSpaceContent(formData.spaceName, formData.headerTitle, formData.customMessage, formData.questions);
-        if (editedSpace) {
-            setSpacesUpdated((prev) => [
-                ...prev,
-                editedSpace
-            ]);
-        }
-    }
+
+    const toggleDropdown = () => {
+        setIsDropdownOpen(prev => !prev);
+    };
+
+    const toggleMenu = (index: number) => {
+        setMenuVisible(prev => prev === index ? null : index);
+    };
 
     const toggleTheme = () => {
         setIsDarkTheme(prev => !prev);
@@ -150,14 +179,12 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
                 <div>
                     <img src="/testimonial-logo.svg" alt="testimonialLogo" width={150} height={150} />
                 </div>
-                <div className='text-white text-md'>
-                    <SignedIn>
-                        <UserButton />
-                    </SignedIn>
-                    <SignedOut>
-                        <SignInButton />
-                    </SignedOut>
-                </div>
+                <SignedIn>
+                    <UserButton />
+                </SignedIn>
+                <SignedOut>
+                    <SignInButton />
+                </SignedOut>
 
             </header>
             <hr className="border-gray-700 mb-6" />
@@ -192,7 +219,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
                     <div className='mb-6'>
                         <h2 className="text-2xl font-bold mb-6">INBOX</h2>
                         <ul className="space-y-4 list-disc pl-6">
-                            {['All', 'Video', 'Text', 'Archived', 'Liked'].map((item) => (
+                            {['All', 'Video', 'Text', 'Archived'].map((item) => (
                                 <li key={item} className="relative">
                                     <button
                                         className={`w-full text-left text-white py-1 px-5 rounded-lg ${activeButton === item ? 'bg-inbox-hover' : 'hover:bg-inbox-hover'
@@ -252,7 +279,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
                         <div className="flex flex-col items-center">
                             <button
                                 className="bg-background text-gray-200 px-3 py-2 rounded-lg hover:bg-gray-800 mb-4"
-                                onClick={fetchTestimonials}
+                            // onClick={fetchTestimonials}
                             >
                                 <FaSyncAlt className="text-gray-600" />
                             </button>
@@ -303,16 +330,6 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
                                 >
                                     <div className="absolute top-2 right-2 flex space-x-2">
                                         <button
-                                            className="p-2 bg-[#27292c] text-white rounded-full"
-                                            onClick={() => toggleLike(index)}
-                                        >
-                                            {liked[index] ? (
-                                                <FaHeart className="w-4 h-4 text-red-500" />
-                                            ) : (
-                                                <FaRegHeart className="w-4 h-4 text-white" />
-                                            )}
-                                        </button>
-                                        <button
                                             className="p-2 bg-gray-500 text-white rounded-full"
                                             onClick={() => toggleMenu(index)}
                                         >
@@ -360,6 +377,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
                                                 Edit
                                             </button>
                                             <button
+                                                onClick={() => handleTestimonialDelete(index)}
                                                 className="w-full px-6 py-3 text-left hover:bg-gray-200 rounded-lg"
                                             >
                                                 Delete
@@ -487,6 +505,38 @@ const SpacePage: React.FC<SpacePageProps> = ({ space , headerTitle , questions,c
                             </div>
                         </div>
                     )}
+                    <div className="relative">
+                        {
+                            isWallofLove && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                                    <div className="relative bg-background rounded-lg shadow-lg p-6 w-full max-w-4xl mx-auto">
+                                        <button
+                                            className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                            onClick={handleWallOfCloseModal}
+                                        >
+                                            <FontAwesomeIcon icon={faTimes} />
+                                        </button>
+                                        <h1 className="text-xl font-semibold mb-4 text-white">Embed Code</h1>
+                                        <div className="bg-gray-800 p-4 rounded-md text-white">
+                                            <code className="block whitespace-pre-wrap">
+                                                {`<div className='w-full max-w-4xl mx-auto'>\n`}
+                                                {`    <iframe\n`}
+                                                {`        src="http://localhost:4000/test?space=${space}"\n`}
+                                                {`        width="100%"\n`}
+                                                {`        height="600px"\n`}
+                                                {`        allowFullScreen\n`}
+                                                {`        title="Testimonial Widget"\n`}
+                                                {`        className="border-none"\n`}
+                                                {`        style={{ borderRadius: '8px', overflow: 'hidden' }}\n`}
+                                                {`    ></iframe>\n`}
+                                                {`</div>`}
+                                            </code>
+                                        </div>
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </div>
                 </div>
             </main>
         </div>

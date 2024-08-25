@@ -35,6 +35,13 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial }) => {
                     </svg>
                 ))}
             </div>
+            <div className="mt-4">
+                {
+                    testimonial.type === 'TEXT' &&(
+                        <img src="/testimonial-logo.svg" alt="" height={150} width={150}/>
+                    )
+                }
+            </div>
         </div>
     );
 };

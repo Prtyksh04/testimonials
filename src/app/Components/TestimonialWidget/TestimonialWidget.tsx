@@ -1,17 +1,7 @@
 "use client"
 import React , {useState , useEffect} from "react"
 import MasonryLayout from "../MasonryLayout/MasonryLayout"
-
-interface Testimonial {
-    id : number;
-    type: 'VIDEO' | 'TEXT';
-    starRating: number;
-    name: string;
-    email: string;
-    content?: string;
-    videoUrl?: string
-}
-
+import { Testimonial } from "@/types/types"
 interface TestimonialWidgetProps {
     spaceName : string;
 }
@@ -23,7 +13,6 @@ const TestimonialWidget : React.FC<TestimonialWidgetProps> = ({spaceName}) => {
         const fetchTestimonials = async()=>{
             const response = await fetch(`/api/testimonials?space=${spaceName}`, { method: 'GET' });
             const data: Testimonial[] = await response.json();
-            console.log(testimonals);
             setTestimonials(data);
         }
         fetchTestimonials();

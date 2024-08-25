@@ -36,7 +36,6 @@ export async function getSpaceContent(spaceName: string) {
                 questions : true,
             }
         });
-        console.log("getSpaceContent : " , getSpaceContent);
         return getSpaceContent|| { headerTitle: '', customMessage: '', questions: [] }; 
     } catch (error) {
         console.error("Error Creating Testimonial : ", error);

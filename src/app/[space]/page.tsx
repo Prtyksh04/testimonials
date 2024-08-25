@@ -2,7 +2,6 @@ import TestimonialPage from "@/app/Components/TestimonialSpacePage/TestimonialSp
 import prisma from "@/db";
 
 export async function getSpaceContent(spaceName: string) {
-    console.log("spaceName : " , spaceName);
     try {
         const spaceContent = await prisma.space.findFirst({
             where: {
@@ -14,7 +13,6 @@ export async function getSpaceContent(spaceName: string) {
                 questions: true,
             }
         });
-        console.log("spaceContent : " , spaceContent);
         return spaceContent || { headerTitle: '', customMessage: '', questions: [] }; 
     } catch (error) {
         console.error("Error fetching Space Content:", error);
