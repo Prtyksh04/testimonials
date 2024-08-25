@@ -1,7 +1,7 @@
 import React from "react";
 import VideoJS from "../VideoPlayer";
 import { Testimonial } from "@/types/types";
-
+import Image from "next/image";
 interface TestimonialCardProps {
     testimonial: Testimonial;
 }
@@ -38,7 +38,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({ testimonial }) => {
             <div className="mt-4">
                 {
                     testimonial.type === 'TEXT' &&(
-                        <img src="/testimonial-logo.svg" alt="" height={150} width={150}/>
+                        <Image src="/testimonial-logo.svg" alt=''height={150} width={150}/>
                     )
                 }
             </div>

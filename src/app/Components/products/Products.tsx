@@ -8,7 +8,8 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import {editSpaceContent } from '@/actions/spaces';
 import { getSpaceContent } from '@/actions/getSpaceContent';
 import VideoPlayer from '../VideoPlayer';
-import { FormData, spaces, SpacePageProps, Testimonial } from '@/types/types';
+import Image from 'next/image';
+import { spaces, SpacePageProps, Testimonial } from '@/types/types';
 import { deleteTestimonial } from '@/actions/testimonial';
 
 const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
@@ -178,7 +179,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         <div className="min-h-screen bg-background">
             <header className='text-white p-4 flex items-center justify-between'>
                 <div>
-                    <img src="/testimonial-logo.svg" alt="testimonialLogo" width={150} height={150} />
+                    <Image src="/testimonial-logo.svg" alt=''height={150} width={150}/>
                 </div>
                 <SignedIn>
                     <UserButton />
@@ -319,7 +320,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                     </Transition>
                     {testimonial.length === 0 ? (
                         <div className='flex flex-col items-center justify-center mt-6'>
-                            <img src="/tree-dashboard.svg" alt="Tree Image" width={500} height={375} />
+                            <Image src="/tree-dashboard.svg" alt='Tree Image'height={375} width={500}/>
                             <p className="text-white text-lg mt-4">No testimonial yet</p>
                         </div>
                     ) : (

@@ -9,7 +9,7 @@ interface VideoJSProps {
   height?: number | string;
 }
 
-export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , height }) => {
+export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady, width, height }) => {
   const videoRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null); 
 
@@ -27,8 +27,8 @@ export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , he
         controls: true,
         autoplay: false,
         preload: 'auto',
-        width : width,
-        height : height,
+        width: width,
+        height: height,
         sources: [{
           src: videoUrl,
           type: 'application/x-mpegURL',
@@ -47,7 +47,7 @@ export const VideoJS: React.FC<VideoJSProps> = ({ videoUrl, onReady , width , he
         });
       }
     }
-  }, [videoUrl, onReady]);
+  }, [videoUrl, onReady, width, height]);
 
   useEffect(() => {
     const player = playerRef.current;

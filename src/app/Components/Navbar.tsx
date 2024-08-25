@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-
+import Image from 'next/image';
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className='flex items-center justify-between'>
-              <img src="./next.svg" alt="nextjs logo" height={50} width={50}  className='mr-2'/>
+              <Image src="/next.svg" alt=''height={50} width={50} className='mr-2'/>
               <h1 className="text-2xl font-bold">Pulse</h1>
             </div>
             <div className="hidden md:block">
