@@ -13,7 +13,7 @@ import { spaces, SpacePageProps, Testimonial } from '@/types/types';
 import { deleteTestimonial } from '@/actions/testimonial';
 
 const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
-    const url = `http://localhost:4000/${space}`
+    const url = `https://testimonials-bf1h.vercel.app/${space}`
     const [activeButton, setActiveButton] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
@@ -180,7 +180,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
-                                http://localhost:4000/{space}
+                                https://testimonials-bf1h.vercel.app/{space}
                             </a>
                         </p>
                         <button
