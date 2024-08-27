@@ -22,7 +22,6 @@ export default function Home() {
           </SignedOut>
         </div>
       </header>
-
       <main className="mt-24 p-4">
         <section className="mt-4">
           <div className="flex items-center justify-between flex-col max-w-4xl mx-auto">
@@ -34,7 +33,7 @@ export default function Home() {
             </h3>
             <button
               onClick={() => {
-                router.push('/testimonial/Dashboard');
+                router.push('/dashboard');
               }}
               className="rounded-lg bg-buttoColor p-4 text-white text-lg font-semibold mt-4"
             >
