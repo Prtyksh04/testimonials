@@ -40,9 +40,16 @@ export default function Home() {
             >
               Try FREE now
             </button>
-          </div>
-          <div>
-            <h1 className="text-white">Here I have to Add the Video</h1>
+            <div className='mt-6 max-w-4xl mx-auto p-4'>
+              <div className='relative aspect-w-16 aspect-h-9'>
+                <video
+                  src="/testingvideo.mp4"
+                  controls
+                  className='w-full h-full object-cover rounded-lg shadow-lg'
+                  title="Testing Video"
+                />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -57,8 +64,21 @@ export default function Home() {
               Copy and paste our HTML code to add the Wall Of Love (👉 full version) to your website. We support any no-code platform (Webflow, WordPress, you name it!)
             </h3>
           </div>
-          <div>
-            <h1 className="text-white">Here will come the iframe code for the website</h1>
+          <div className="mt-6 p-4 bg-background text-white rounded-lg shadow-md flex items-center justify-center flex-col">
+            <h2 className="text-xl font-semibold mb-4">Example Code Snippet</h2>
+            <pre className="overflow-x-auto bg-gray-600 rounded-lg border-buttoColor border-2">
+              <code className="language-html">
+                {`  <iframe
+    src='testimonials-bf1h.vercel.app/test'
+    width="100%"
+    height="600px"
+    allowFullScreen
+    title="Example Iframe"
+    className="border-none"
+    style={{ borderRadius: '8px', overflow: 'hidden' }}>
+  </iframe>`}
+              </code>
+            </pre>
           </div>
         </section>
 
