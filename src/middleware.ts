@@ -3,10 +3,15 @@ import { clerkMiddleware , createRouteMatcher } from "@clerk/nextjs/server";
 const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)' , '/test(.*)' , '/' , '/api/testimonials(.*)' , '/testing/test']);
 
 export default clerkMiddleware((auth, request) => {
-  if(!isPublicRoute(request)) {
-    auth().protect();
+  console.log('Request URL:', request.nextUrl.pathname);
+  if (!isPublicRoute(request)) {
+      console.log('Protected route, requiring authentication.');
+      auth().protect();
+  } else {
+      console.log('Public route, no authentication required.');
   }
 });
+
 
 // export default clerkMiddleware();
 
