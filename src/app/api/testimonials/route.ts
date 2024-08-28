@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/db';
+import prisma from '@/db'; // Adjust the path as necessary
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
                 content: true,
                 submittedAt: true,
                 videoUrl: true,
-                id: true
-            }
+                id: true,
+            },
         });
 
         return new NextResponse(JSON.stringify(testimonials), {
