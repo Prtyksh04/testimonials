@@ -6,7 +6,14 @@ export async function GET(request: NextRequest) {
     const space = searchParams.get('space');
 
     if (!space) {
-        return NextResponse.json({ error: 'Space parameter is required' }, { status: 400 });
+        return new NextResponse(JSON.stringify({ error: 'Space parameter is required' }), {
+            status: 400,
+            headers: {
+                'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+            },
+        });
     }
 
     try {
@@ -19,14 +26,39 @@ export async function GET(request: NextRequest) {
                 email: true,
                 content: true,
                 submittedAt: true,
-                videoUrl:true,
-                id:true
+                videoUrl: true,
+                id: true
             }
         });
 
-        return NextResponse.json(testimonials);
+        return new NextResponse(JSON.stringify(testimonials), {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+            },
+        });
     } catch (error) {
         console.error('Error Fetching Testimonials:', error);
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+            status: 500,
+            headers: {
+                'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+            },
+        });
     }
+}
+
+export async function OPTIONS() {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        },
+    });
 }

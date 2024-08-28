@@ -1,10 +1,11 @@
+//http:localhost:4000/testing/test
 import React from 'react';
 
 const TestIframe: React.FC = () => {
     return (
         <div className='w-full max-w-4xl mx-auto'>
             <iframe
-                src="http://localhost:4000/test?space=plura"
+                src="https://testimonials-bf1h.vercel.app/test?space=plura"
                 width="100%"
                 height="600px"
                 allowFullScreen
