@@ -1,10 +1,8 @@
 import { NextAuthOptions } from 'next-auth';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GoogleProvider from "next-auth/providers/google";
 import prisma from '@/db';
 
-
-export const AuthOptions: NextAuthOptions = ({
+export const AuthOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID ?? '',
@@ -19,9 +17,10 @@ export const AuthOptions: NextAuthOptions = ({
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-    else if (new URL(url).origin === baseUrl) return url
-    return baseUrl
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      return baseUrl + '/dashboard';
     },
     async signIn(params) {
       if (!params.user.email) {
@@ -32,7 +31,7 @@ export const AuthOptions: NextAuthOptions = ({
           where: {
             email: params.user.email
           }
-        })
+        });
         if (existingUser) {
           return true;
         }
@@ -41,20 +40,19 @@ export const AuthOptions: NextAuthOptions = ({
             email: params.user.email,
             provider: "Google"
           }
-        })
+        });
         return true;
       } catch (error) {
         console.error(error);
         return false;
       }
     },
-
     async session({ session, token, user }) {
       const dbUser = await prisma.user.findUnique({
         where: {
           email: session.user?.email as string
         }
-      })
+      });
       if (!dbUser) {
         return session;
       }
@@ -68,4 +66,4 @@ export const AuthOptions: NextAuthOptions = ({
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
