@@ -1,15 +1,22 @@
-'use client'
+'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import TestimonalTest from '@/app/Components/TestimonalTest';
 
-const Page: React.FC = () => {
+function Search() {
   const searchParams = useSearchParams();
   const space = searchParams?.get('space');
-  console.log(space);
   return (
-    <TestimonalTest spaceName={space as string}/>
+    <TestimonalTest spaceName={space as string} />
+  )
+}
+
+const Page: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Search />
+    </Suspense>
   );
 }
 
