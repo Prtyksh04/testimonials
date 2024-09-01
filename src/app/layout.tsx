@@ -1,6 +1,4 @@
-import {
-  ClerkProvider,
-} from '@clerk/nextjs'
+import AuthProvider from '@/context/AuthProvider'
 import './globals.css'
 export default function RootLayout({
   children,
@@ -8,14 +6,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-    >
-      <html lang="en">
+    <html lang="en">
+      <AuthProvider>
         <body>
           {children}
         </body>
-      </html>
-    </ClerkProvider>
+      </AuthProvider>
+    </html>
   )
 }

@@ -2,7 +2,7 @@
 import React, { useState, ChangeEvent, MouseEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import SignIn from '@/app/auth/signin/page';
 import { createSpace } from '@/actions/spaces';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -49,6 +49,7 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                 createdSpace
             ]);
         }
+        setIsModalOpen(false);
     };
 
     const handleCloseModal = () => {
@@ -77,12 +78,7 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                     <Image src="/testimonial-logo.svg" alt='Testimonial Logo' height={150} width={150} />
                 </div>
                 <div className='text-white text-md'>
-                    <SignedIn>
-                        <UserButton />
-                    </SignedIn>
-                    <SignedOut>
-                        <SignInButton />
-                    </SignedOut>
+                    <SignIn />
                 </div>
             </header>
             <main className="p-6 ml-14 flex flex-col">
@@ -142,6 +138,7 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
                     <div className="relative bg-white rounded-lg shadow-lg flex flex-col w-full max-w-4xl h-auto max-h-screen overflow-hidden">
+
                         <button
                             onClick={handleCloseModal}
                             className={`absolute top-4 right-4 z-20 ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}
@@ -166,75 +163,89 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                                                 <li key={index}>{question || `Question ${index + 1}`}</li>
                                             ))}
                                         </ul>
+                                        <div className="mt-6 flex flex-col space-y-4">
+                                            <button className="w-full bg-black text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-800 transition-colors duration-300">
+                                                Upload a Video
+                                            </button>
+                                            <button className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300">
+                                                Send in Text
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="w-1/2 p-6 overflow-auto min-h-[500px]">
-                                    <div className="relative flex flex-col items-center justify-center h-full">
-                                        <h2 className="text-2xl font-bold mb-4 text-center">Create Space</h2>
-                                        <form className="w-full max-w-lg">
-                                            <div className="mb-4">
-                                                <label htmlFor="spaceName" className="block text-gray-700 mb-2">Space Name</label>
-                                                <input
-                                                    type="text"
-                                                    id="spaceName"
-                                                    name="spaceName"
-                                                    value={formData.spaceName}
-                                                    onChange={handleChange}
-                                                    className="w-full p-3 border rounded-md"
-                                                    required
-                                                />
-                                            </div>
-                                            <div className="mb-4">
-                                                <label htmlFor="headerTitle" className="block text-gray-700 mb-2">Header Title</label>
-                                                <input
-                                                    type="text"
-                                                    id="headerTitle"
-                                                    name="headerTitle"
-                                                    value={formData.headerTitle}
-                                                    onChange={handleChange}
-                                                    className="w-full p-3 border rounded-md"
-                                                />
-                                            </div>
-                                            <div className="mb-4">
-                                                <label htmlFor="customMessage" className="block text-gray-700 mb-2">Custom Message</label>
-                                                <textarea
-                                                    id="customMessage"
-                                                    name="customMessage"
-                                                    value={formData.customMessage}
-                                                    onChange={handleChange}
-                                                    className="w-full p-3 border rounded-md"
-                                                />
-                                            </div>
-                                            <div className="mb-4">
-                                                <h4 className="text-lg font-semibold mb-2">Questions</h4>
-                                                {formData.questions.map((question, index) => (
-                                                    <div key={index} className="mb-2">
-                                                        <label className="block text-gray-700 mb-1">Question {index + 1}</label>
-                                                        <input
-                                                            type="text"
-                                                            value={question}
-                                                            onChange={(e) => handleQuestionChange(index, e.target.value)}
-                                                            className="w-full p-3 border rounded-md"
-                                                        />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <button
-                                                type="submit"
-                                                onClick={handleSubmit}
-                                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                                            >
-                                                Create Space
-                                            </button>
-                                        </form>
-                                        <button
-                                            onClick={toggleTheme}
-                                            className="mt-4 bg-gray-800 text-white px-4 py-2 rounded-md shadow-md hover:bg-gray-700 flex items-center"
-                                        >
-                                            <FontAwesomeIcon icon={isDarkTheme ? faSun : faMoon} className="mr-2" />
-                                            Toggle Theme
-                                        </button>
+                                <div className="w-1/2 p-6 overflow-auto">
+                                    <div className='flex items-center flex-col justify-between'>
+                                        <h2 className={`text-2xl font-medium mb-4text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-800'}`}>Edit Space</h2>
+                                        <p className={`mb-6 text-xs text-center ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}>After the Space is Edited, it will show a Changes on the Dedicated Page for testimonial</p>
                                     </div>
+                                    <form>
+                                        <div className="mb-4">
+                                            <label htmlFor="spaceName" className={`blockfont-medium text-xs ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Space Name (required)</label>
+                                            <input
+                                                type="text"
+                                                id="spaceName"
+                                                name="spaceName"
+                                                value={formData.spaceName}
+                                                onChange={handleChange}
+                                                autoComplete='off'
+                                                required
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            />
+                                        </div>
+                                        <div className={`text-sm ${isDarkTheme ? 'text-slate-400' : 'text-gray-800'} mb-4`}>
+                                            <p>
+                                                <span>Public URL is : </span>
+                                                testimonial/{formData.spaceName}
+                                            </p>
+                                        </div>
+                                        <div className="mb-4">
+                                            <label htmlFor="headerTitle" className={`block font-medium text-xs ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Header Title</label>
+                                            <input
+                                                type="text"
+                                                id="headerTitle"
+                                                name="headerTitle"
+                                                value={formData.headerTitle}
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            />
+                                        </div>
+                                        <div className="mb-4">
+                                            <label htmlFor="customMessage" className={`block ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'} font-medium text-xs`}>Custom Message</label>
+                                            <textarea
+                                                id="customMessage"
+                                                name="customMessage"
+                                                value={formData.customMessage}
+                                                onChange={handleChange}
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            />
+                                        </div>
+                                        <div className="mb-4">
+                                            <h4 className={`text-md ${isDarkTheme ? 'text-slate-300' : 'text-gray-700'}`}>Questions</h4>
+                                            <hr className='w-2/6 mt-2 border-t' />
+                                            {formData.questions.map((question, index) => (
+                                                <div key={index} className="flex items-center mb-4">
+                                                    <input
+                                                        type="text"
+                                                        value={question}
+                                                        onChange={(e) => handleQuestionChange(index, e.target.value)}
+                                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button
+                                            onClick={handleSubmit}
+                                            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300"
+                                        >
+                                            Create Space
+                                        </button>
+                                    </form>
+                                    <button
+                                        onClick={toggleTheme}
+                                        className={`mt-4 flex items-center justify-center px-6 py-2 rounded-lg border border-gray-300 bg-white shadow-md hover:bg-gray-200`}
+                                    >
+                                        <FontAwesomeIcon icon={isDarkTheme ? faSun : faMoon} className="mr-2" />
+                                    </button>
                                 </div>
                             </div>
                         </div>

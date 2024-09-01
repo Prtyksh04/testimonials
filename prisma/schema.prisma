@@ -6,36 +6,51 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  provider Provider
+  spaces   Space[]  @relation("UserSpaces")
+
+  @@map("users")
+}
 
 model Space {
   id            Int           @id @default(autoincrement())
   spaceName     String        @unique
-  userId        String
+  userEmail     String
+  user          User          @relation(fields: [userEmail], references: [email], onDelete: Cascade, name: "UserSpaces")
   headerTitle   String
   customMessage String
   questions     String[]
   testimonials  Testimonial[]
 
-  @@unique([userId, spaceName])
+  @@unique([userEmail, spaceName]) 
+  @@map("spaces")
 }
 
 model Testimonial {
-  id          Int      @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   spaceName   String
-  space       Space    @relation(fields: [spaceName], references: [spaceName])
+  space       Space           @relation(fields: [spaceName], references: [spaceName])
   starRating  Int
   content     String?
   name        String
   email       String
   type        TestimonialType
-  videoUrl    String? // Add this field for storing video URLs
-  submittedAt DateTime @default(now())
-  permission Boolean
+  videoUrl    String?
+  submittedAt DateTime        @default(now())
+  permission  Boolean
 
   @@index([spaceName])
+  @@map("testimonials")
 }
 
 enum TestimonialType {
   TEXT
   VIDEO
+}
+
+enum Provider {
+  Google
 }

@@ -5,7 +5,7 @@ const TestIframe: React.FC = () => {
     return (
         <div className='w-full max-w-4xl mx-auto'>
             <iframe
-                src="https://testimonials-bf1h.vercel.app/test?space=plura"
+                src="http://localhost:3000/test?space=Plura"
                 width="100%"
                 height="600px"
                 allowFullScreen

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/db'; // Adjust the path as necessary
+import prisma from '@/db'; 
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         return new NextResponse(JSON.stringify({ error: 'Space parameter is required' }), {
             status: 400,
             headers: {
-                'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+                'Access-Control-Allow-Origin': '*', 
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         return new NextResponse(JSON.stringify(testimonials), {
             status: 200,
             headers: {
-                'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+                'Access-Control-Allow-Origin': '*', 
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
             },
@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
         return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
             status: 500,
             headers: {
-                'Access-Control-Allow-Origin': '*', // Allow requests from any origin
+                'Access-Control-Allow-Origin': '*', 
                 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers': 'Content-Type',
             },

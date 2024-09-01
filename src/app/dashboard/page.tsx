@@ -1,16 +1,14 @@
 import DashBoard from "@/app/Components/Dashboard/Dashboard";
 import prisma from "@/db";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
+import { AuthOptions } from "../api/auth/[...nextauth]/options";
 
-async function getSpaces() {
+
+async function getSpaces(userEmail: string) {
     try {
-        const { userId } = auth();
-        if (!userId) {
-            return [];
-        }
         const spaces = await prisma.space.findMany({
             where: {
-                userId: userId,
+                userEmail
             },
             select: {
                 spaceName: true,
@@ -29,7 +27,12 @@ async function getSpaces() {
 }
 
 const DashboardPage = async function () {
-    const spaces = await getSpaces();
+    const session = await getServerSession(AuthOptions);
+    if (!session || !session.user?.email) {
+        return <div>You need to sign in to access the dashboard.</div>;
+    }
+    const userEmail = session.user.email;
+    const spaces = await getSpaces(userEmail as string);
     return (
         <DashBoard Spaces={spaces} />
     );

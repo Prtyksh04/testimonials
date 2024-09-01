@@ -1,9 +1,8 @@
 'use client';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-
+import SignIn from './auth/signin/page';
 export default function Home() {
   const router = useRouter();
 
@@ -14,12 +13,7 @@ export default function Home() {
           <Image src="/testimonial-logo.svg" alt="testimonialLogo" width={150} height={150} />
         </div>
         <div className="text-white text-md">
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
+          <SignIn />
         </div>
       </header>
       <main className="mt-24 p-4">

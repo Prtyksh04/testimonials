@@ -1,19 +1,22 @@
 'use server'
 import prisma from "@/db"
 import {auth} from '@clerk/nextjs/server'
+import { getServerSession } from "next-auth";
 export async function createSpace(spaceName : string , headerTitle : string , customMessage : string , questions : string[]){
     try {
-        const {userId} = auth();
-        if (!userId) {
+        // const {userId} = auth();
+        const session = await getServerSession();
+        if (!session || !session.user?.email) {
             throw new Error("User not authenticated");
         }
+        const userEmail = session.user.email;
         const spaceCreated = await prisma.space.create({
             data :{
                 spaceName,
                 headerTitle,
                 customMessage,
                 questions,
-                userId,
+                userEmail
             }
         });
 

@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react';
-import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt, FaHeart, FaRegHeart } from 'react-icons/fa';
+import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt } from 'react-icons/fa';
 import { Transition } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes,faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
 import Header from '../Header';
-import {editSpaceContent } from '@/actions/spaces';
+import { editSpaceContent } from '@/actions/spaces';
 import { getSpaceContent } from '@/actions/getSpaceContent';
 import VideoPlayer from '../VideoPlayer';
 import Image from 'next/image';
@@ -56,24 +56,26 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-    useEffect(() => {
-        const fetchTestimonials = async () => {
-            try {
-                const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
-                const data: Testimonial[] = await response.json();
-                setTestimonials(data);
-            } catch (error) {
-                console.error('Error Fetching Testimonials:', error);
-            }
+
+    const fetchTestimonials = useCallback(async () => {
+        try {
+            const response = await fetch(`/api/testimonials?space=${space}`, { method: 'GET' });
+            const data: Testimonial[] = await response.json();
+            setTestimonials(data);
+        } catch (error) {
+            console.error('Error Fetching Testimonials:', error);
         }
-        fetchTestimonials();
     }, [space]);
+
+    useEffect(() => {
+        fetchTestimonials();
+    }, [fetchTestimonials]);
 
     const handleButtonClick = (buttonName: string) => {
         if (buttonName === 'Wall of Love') {
             setIsWallofLove(true);
         }
-        if(buttonName === 'Wall of Love Page'){
+        if (buttonName === 'Wall of Love Page') {
             window.location.href = url;
         }
         setActiveButton(buttonName);
@@ -162,7 +164,6 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
     const toggleTheme = () => {
         setIsDarkTheme(prev => !prev);
     };
-
 
     return (
         <div className="min-h-screen bg-background">
@@ -259,7 +260,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                         <div className="flex flex-col items-center">
                             <button
                                 className="bg-background text-gray-200 px-3 py-2 rounded-lg hover:bg-gray-800 mb-4"
-                            // onClick={fetchTestimonials}
+                                onClick={fetchTestimonials}
                             >
                                 <FaSyncAlt className="text-gray-600" />
                             </button>
@@ -298,7 +299,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                     </Transition>
                     {testimonial.length === 0 ? (
                         <div className='flex flex-col items-center justify-center mt-6'>
-                            <Image src="/tree-dashboard.svg" alt='Tree Image'height={375} width={500}/>
+                            <Image src="/tree-dashboard.svg" alt='Tree Image' height={375} width={500} />
                             <p className="text-white text-lg mt-4">No testimonial yet</p>
                         </div>
                     ) : (
