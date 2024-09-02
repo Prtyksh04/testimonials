@@ -19,7 +19,6 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// Match the routes you want to protect
 export const config = {
   matcher: ["/dashboard/:path*", "/products/:path*"],
 };

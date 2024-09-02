@@ -13,7 +13,7 @@ export const AuthOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
@@ -21,6 +21,12 @@ export const AuthOptions: NextAuthOptions = {
         return url;
       }
       return baseUrl + '/dashboard';
+    },
+    async jwt({token , user}){
+      if(user){
+        token.id = user.id
+      }
+      return token;
     },
     async signIn(params) {
       if (!params.user.email) {
