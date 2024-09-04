@@ -2,11 +2,12 @@
 import React, { useState, ChangeEvent, MouseEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-import SignIn from '@/app/auth/signin/page';
+// import SignIn from '@/app/auth/signin/page';
 import { createSpace } from '@/actions/spaces';
 import Link from 'next/link';
 import Image from 'next/image';
 import { spaces, FormData } from '@/types/types';
+import Header from '../Header';
 
 const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -73,14 +74,7 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
 
     return (
         <div className="min-h-screen bg-background">
-            <header className='text-white p-4 flex items-center justify-between'>
-                <div>
-                    <Image src="/testimonial-logo.svg" alt='Testimonial Logo' height={150} width={150} />
-                </div>
-                <div className='text-white text-md'>
-                    <SignIn />
-                </div>
-            </header>
+            <Header />
             <main className="p-6 ml-14 flex flex-col">
                 <div className="flex justify-between items-center mt-20 mb-10">
                     <h1 className="text-5xl font-bold text-white">Overview</h1>

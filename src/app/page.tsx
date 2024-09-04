@@ -1,21 +1,28 @@
 'use client';
 import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { signOut } from 'next-auth/react';
 import Image from 'next/image';
-import SignIn from './auth/signin/page';
+import { useSession } from "next-auth/react"
+import Header from './Components/Header';
+
 export default function Home() {
+
+  const [Session, setSession] = useState<boolean>(false);
+  const { data: session, status } = useSession()
   const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setSession(true);
+    }
+  }, [status]);
+
 
   return (
     <div className="bg-background min-h-screen">
-      <header className="flex justify-between text-white p-4 items-center">
-        <div>
-          <Image src="/testimonial-logo.svg" alt="testimonialLogo" width={150} height={150} />
-        </div>
-        <div className="text-white text-md">
-          <SignIn />
-        </div>
-      </header>
+      <Header />
       <main className="mt-24 p-4">
         <section className="mt-4">
           <div className="flex items-center justify-between flex-col max-w-4xl mx-auto">

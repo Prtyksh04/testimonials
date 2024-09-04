@@ -2,7 +2,7 @@ import DashBoard from "@/app/Components/Dashboard/Dashboard";
 import prisma from "@/db";
 import { getServerSession } from "next-auth";
 import { AuthOptions } from "../api/auth/[...nextauth]/options";
-
+import NotAuthenticated from "../Components/NotAuthenticated";
 
 async function getSpaces(userEmail: string) {
     try {
@@ -29,7 +29,9 @@ async function getSpaces(userEmail: string) {
 const DashboardPage = async function () {
     const session = await getServerSession(AuthOptions);
     if (!session || !session.user?.email) {
-        return <div>You need to sign in to access the dashboard.</div>;
+        return (
+            <NotAuthenticated />
+        )
     }
     const userEmail = session.user.email;
     const spaces = await getSpaces(userEmail as string);
