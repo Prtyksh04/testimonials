@@ -1,5 +1,4 @@
 'use client'
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { signOut } from 'next-auth/react';
 import Image from 'next/image';
@@ -10,7 +9,6 @@ const Header = () => {
 
   const [Session, setSession] = useState<boolean>(false);
   const { data: session, status } = useSession()
-  const router = useRouter();
 
   useEffect(() => {
     if (status === 'authenticated') {
