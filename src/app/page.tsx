@@ -26,7 +26,6 @@ export default function Home() {
       <main className="mt-24 p-4">
         <section className="mt-4">
           <div className="flex items-center justify-between flex-col max-w-4xl mx-auto">
-            <p className='text-red-300  font-semibold mb-2'>Currently video testimonial dosent work as lack of storage  </p>
             <h1 className="text-white text-5xl font-bold text-center">
               Get testimonials from your customers with ease
             </h1>
@@ -44,7 +43,7 @@ export default function Home() {
             <div className='mt-6 max-w-4xl mx-auto p-4'>
               <div className='relative aspect-w-16 aspect-h-9'>
                 <video
-                  src="/demovideo.mp4"
+                  src="/homePage.mp4"
                   controls
                   className='w-full h-full object-cover rounded-lg shadow-lg'
                   title="Testing Video"

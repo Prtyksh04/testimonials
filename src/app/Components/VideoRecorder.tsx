@@ -55,6 +55,7 @@ const UploadComponent: React.FC<SpaceNameprops> = ({ space }) => {
     <div className="flex flex-col  p-6 bg-gray-800 text-white rounded-lg shadow-lg max-w-lg mx-auto mt-10">
       <h2 className="text-2xl font-semibold mb-4">Upload Your Video</h2>
       <div className="mb-4">
+        <p className='text-red-300 text-xs'>Video testimonial dosent work due to lack to database storage</p>
         <label htmlFor="name" className="block text-gray-200">Name <span className="text-red-500">*</span></label>
         <input
           type="text"
@@ -86,7 +87,8 @@ const UploadComponent: React.FC<SpaceNameprops> = ({ space }) => {
       <p className='text-gray-500 mt-2 mb-2 text-semibold'>Each video have to less than equal to 30 Sec</p>
       <button
         onClick={handleUpload}
-        disabled={uploading}
+        disabled={true}
+
         className={`w-full px-4 py-2 rounded-lg ${uploading
           ? 'bg-gray-600 cursor-not-allowed'
           : 'bg-blue-600 hover:bg-blue-700'

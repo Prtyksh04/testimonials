@@ -1,15 +1,17 @@
 "use client";
-import React, { useState, ChangeEvent, MouseEvent } from 'react';
+import React, { useState, ChangeEvent, MouseEvent, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faPlus, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
-// import SignIn from '@/app/auth/signin/page';
+import { faTimes, faPlus, faSun, faMoon , faStar } from '@fortawesome/free-solid-svg-icons';
+import { FaTrash } from 'react-icons/fa';
 import { createSpace } from '@/actions/spaces';
 import Link from 'next/link';
 import Image from 'next/image';
 import { spaces, FormData } from '@/types/types';
 import Header from '../Header';
+import { deleteSpace as apideleteSpace } from '@/actions/spaces';
 
 const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
+
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
     const [spacesUpdated, setSpacesUpdated] = useState<spaces[]>(Spaces);
@@ -50,6 +52,17 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                 createdSpace
             ]);
         }
+        setFormData({
+            spaceName: '',
+            headerTitle: '',
+            customMessage: '',
+            questions: [
+                'How has our product / service helped you?',
+                'Who are you / what are you working on?',
+                'What is the best thing about our product / service'
+            ],
+        });
+        setIsDarkTheme(false);
         setIsModalOpen(false);
     };
 
@@ -72,6 +85,14 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
         setIsDarkTheme(prev => !prev);
     };
 
+    useEffect(() => {
+        setSpacesUpdated(Spaces); 
+    }, [Spaces]);
+
+    const deleteSpace = async (spaceName: string)=>{
+        setSpacesUpdated((prevState) => prevState.filter(space => space.spaceName !== spaceName));
+        await apideleteSpace(spaceName);
+    }
     return (
         <div className="min-h-screen bg-background">
             <Header />
@@ -116,17 +137,30 @@ const DashBoard = ({ Spaces }: { Spaces: spaces[] }) => {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 px-4 sm:px-6 lg:px-8">
                         {spacesUpdated.map((space: spaces) => (
-                            <Link key={space.id} href={`/products/${space.spaceName}`}>
-                                <div className="bg-[#27292c] p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform hover:scale-105">
-                                    <h2 className="text-xl font-semibold text-white mb-4">{space.spaceName}</h2>
-                                    <div className='flex gap-4'>
-                                        <p className='text-sm text-gray-400'>Video : 2</p>
-                                        <p className='text-sm text-gray-400'>Text : 2</p>
+                            <div key={space.id} className="relative">
+                                <Link href={`/products/${space.spaceName}`} passHref>
+                                    <div className="bg-[#27292c] p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 ease-in-out transform">
+                                        <h2 className="text-xl font-semibold text-white mb-4">{space.spaceName}</h2>
+                                        <div className="flex gap-4">
+                                            <p className="text-sm text-gray-400">Video : 2</p>
+                                            <p className="text-sm text-gray-400">Text : 2</p>
+                                        </div>
                                     </div>
+                                </Link>
+                                <div className="absolute top-2 right-2 flex space-x-2">
+                                    <button
+                                        className="p-2 bg-gray-500 text-white rounded-full hover:bg-red-600 transition-colors duration-300 ease-in-out"
+                                        onClick={(e) => {
+                                            deleteSpace(space.spaceName); 
+                                        }}
+                                    >
+                                        <FaTrash className="w-4 h-4" />
+                                    </button>
                                 </div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
+
                 )}
             </main>
             {isModalOpen && (

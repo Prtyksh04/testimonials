@@ -1,23 +1,112 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react';
+import React, { useState, useEffect, useRef, useCallback, ChangeEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { FaTrash, FaSearch, FaVideo, FaFileAlt, FaSyncAlt } from 'react-icons/fa';
 import { Transition } from '@headlessui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faSun, faMoon } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faSun, faMoon, faStar } from '@fortawesome/free-solid-svg-icons';
 import Header from '../Header';
 import { editSpaceContent } from '@/actions/spaces';
 import { getSpaceContent } from '@/actions/getSpaceContent';
 import VideoPlayer from '../VideoPlayer';
 import Image from 'next/image';
 import { spaces, SpacePageProps, Testimonial } from '@/types/types';
-import { deleteTestimonial } from '@/actions/testimonial';
+import { deleteTestimonial, editTestimonial, getTestimonialContent } from '@/actions/testimonial';
+import UploadComponent from '../VideoRecorder';
+import { createTestimonial } from '@/actions/testimonial';
 
 const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
+
+    const [isTextModalOpen, setIsTextModalOpen] = useState<boolean>(false);
+    const [isEditTextModalOpen, setIsEditTextModalOpen] = useState<boolean>(false); 2
+    const [isVideoModalOpen, setIsVideoModalOpen] = useState<boolean>(false);
+    const [starRating, setStarRating] = useState<number>(0);
+    const [content, setContent] = useState<string>('');
+    const [name, setName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
     const url = `https://testimonials-bf1h.vercel.app/${space}`
     const [activeButton, setActiveButton] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [menuVisible, setMenuVisible] = useState<number | null>(null);
+    const [testimonial, setTestimonials] = useState<Testimonial[]>([]);
+    const [isWallofLove, setIsWallofLove] = useState<boolean>(false);
+    const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
     const [isDarkTheme, setIsDarkTheme] = useState<boolean>(false);
     const [spacesUpdated, setSpacesUpdated] = useState<spaces[]>([]);
+    const [editTestimonialFormData, setEditTestimonialFormData] = useState({
+        content: '',
+        starRating: 0,
+        name: '',
+        email: '',
+        id :0
+    })
+
+    const handleSubmitText = async (e: ReactMouseEvent<HTMLButtonElement>) => {
+        const type = 'TEXT'
+        e.preventDefault();
+        const newTestimonial = await createTestimonial(space, starRating, content, name, email, type);
+        if (newTestimonial) {
+            setTestimonials(prevTestimonials => [...prevTestimonials, { ...newTestimonial, content: newTestimonial.content ?? undefined, videoUrl: newTestimonial.videoUrl ?? undefined }]);
+        }
+        handleTextCloseModal();
+    };
+
+    const handleTextCloseModal = () => {
+        setIsTextModalOpen(false);
+        setStarRating(0);
+        setContent('');
+        setName('');
+        setEmail('');
+    };
+
+    const handleEditTestimonialSubmitText = async (index: number) => {
+        try {
+            const editedTestimonial = await editTestimonial(
+                editTestimonialFormData.id,
+                editTestimonialFormData.content,
+                editTestimonialFormData.starRating,
+                editTestimonialFormData.email,
+                editTestimonialFormData.name,
+            );
+    
+            setTestimonials((prevTestimonials) =>
+                prevTestimonials.map((t, i) =>
+                    i === index ? { ...t, ...editedTestimonial } : t
+                )
+            );
+    
+            setIsEditTextModalOpen(false);
+    
+        } catch (error) {
+            console.error('Error editing testimonial:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchTestimonials();
+    }, [testimonial]);
+
+    const handleEditTextModal = (index: number) => {
+        const fetchTestimonialContent = async (id: number) => {
+
+            const response = await getTestimonialContent(id);
+            
+
+            setEditTestimonialFormData((prevData) => ({
+                ...prevData,
+                name: response?.name,
+                starRating: Number(response.starRating),
+                email: response.email,
+                content: String(response.content),
+                id,
+            }));
+        };
+
+        fetchTestimonialContent(testimonial[index].id);
+        setIsEditTextModalOpen(true);
+    };
+
     const [formData, setFormData] = useState({
         spaceName: '',
         headerTitle: '',
@@ -28,12 +117,6 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
             'What is the best thing about our product / service'
         ]
     });
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [menuVisible, setMenuVisible] = useState<number | null>(null);
-    const [testimonial, setTestimonials] = useState<Testimonial[]>([]);
-    const [isWallofLove, setIsWallofLove] = useState<boolean>(false);
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
-    const menuRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const fetchSpaceContent = async () => {
@@ -67,9 +150,9 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         }
     }, [space]);
 
-    useEffect(() => {
+    useEffect(()=>{
         fetchTestimonials();
-    }, [fetchTestimonials]);
+    },[testimonial]);
 
     const handleButtonClick = (buttonName: string) => {
         if (buttonName === 'Wall of Love') {
@@ -104,6 +187,14 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         }
     };
 
+    const handleEditTestimonialChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setEditTestimonialFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    }
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -112,7 +203,8 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         }));
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e : any) => {
+        e.preventDefault();
         try {
             const editedSpace = await editSpaceContent(formData.spaceName, formData.headerTitle, formData.customMessage, formData.questions);
             if (editedSpace) {
@@ -124,20 +216,10 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
         } catch (error) {
             console.error('Error editing space:', error);
         }
+        handleCloseModal();
     };
 
     const handleCloseModal = () => {
-        setFormData({
-            spaceName: '',
-            headerTitle: '',
-            customMessage: '',
-            questions: [
-                'How has our product / service helped you?',
-                'Who are you / what are you working on?',
-                'What is the best thing about our product / service'
-            ],
-        });
-        setIsDarkTheme(false);
         setIsModalOpen(false);
     };
 
@@ -287,11 +369,13 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                         >
                             <button
                                 className="w-full px-6 py-3 text-left hover:bg-gray-200 rounded-lg"
+                                onClick={()=>{setIsVideoModalOpen(true)}}
                             >
                                 Add a Video
                             </button>
                             <button
                                 className="w-full px-6 py-3 text-left hover:bg-gray-200 rounded-lg"
+                                onClick={()=>{setIsTextModalOpen(true);}}
                             >
                                 Add a Text
                             </button>
@@ -354,6 +438,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                                         >
                                             <button
                                                 className="w-full px-6 py-3 text-left hover:bg-gray-200 rounded-lg"
+                                                onClick={() => handleEditTextModal(index)}
                                             >
                                                 Edit
                                             </button>
@@ -471,7 +556,7 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                                                     onClick={handleSubmit}
                                                     className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-300"
                                                 >
-                                                    Create Space
+                                                    Update Space
                                                 </button>
                                             </form>
                                             <button
@@ -518,6 +603,166 @@ const SpacePage: React.FC<SpacePageProps> = ({ space }) => {
                             )
                         }
                     </div>
+                    {
+                        isEditTextModalOpen && (
+                            <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+                                <div className="relative bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-auto">
+                                    <button
+                                        onClick={()=>{setIsEditTextModalOpen(false)}}
+                                        className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+                                    >
+                                        <FontAwesomeIcon icon={faTimes} />
+                                    </button>
+                                    <div className="px-6 py-2">
+                                        <h2 className="text-2xl font-bold mb-4 text-center">Leave a Testimonial</h2>
+                                        <form>
+                                            <div className="flex justify-center mb-4">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <FontAwesomeIcon
+                                                        key={star}
+                                                        icon={faStar}
+                                                        className={`cursor-pointer text-2xl ${editTestimonialFormData.starRating >= star ? 'text-yellow-500' : 'text-gray-300'}`}  // Compare with fetched starRating
+                                                        onMouseEnter={() => setEditTestimonialFormData((prevData) => ({ ...prevData, starRating: star }))}  // Set star rating on hover if needed
+                                                        onClick={() => setEditTestimonialFormData((prevData) => ({ ...prevData, starRating: star }))}  // Update the starRating on click
+                                                    />
+                                                ))}
+                                            </div>
+                                            <div className="mb-4">
+                                                <label htmlFor="comment" className="block text-gray-700">Your Feedback</label>
+                                                <textarea
+                                                    id="comment"
+                                                    name='content'
+                                                    value={editTestimonialFormData.content}
+                                                    onChange={handleEditTestimonialChange}
+                                                    rows={4}
+                                                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <label htmlFor="name" className="block text-gray-700">Name <span className="text-red-500">*</span></label>
+                                                <input
+                                                    type="text"
+                                                    id="name"
+                                                    name='name'
+                                                    value={editTestimonialFormData.name}
+                                                    onChange={handleEditTestimonialChange}
+                                                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-4">
+                                                <label htmlFor="email" className="block text-gray-700">Your Email <span className="text-red-500">*</span></label>
+                                                <input
+                                                    type="email"
+                                                    id="email"
+                                                    name='email'
+                                                    value={editTestimonialFormData.email}
+                                                    onChange={handleEditTestimonialChange}
+                                                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="flex justify-end">
+                                                <button
+                                                    onClick={(e)=>{
+                                                        e.preventDefault();
+                                                        handleEditTestimonialSubmitText(editTestimonialFormData.id)
+                                                    }}
+                                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700"
+                                                >
+                                                    Update
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
+                    {isTextModalOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+                            <div className="relative bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-auto">
+                                <button
+                                    onClick={handleTextCloseModal}
+                                    className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+                                >
+                                    <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                                <div className="px-6 py-2">
+                                    <h2 className="text-2xl font-bold mb-4 text-center">Leave a Testimonial</h2>
+                                    <form>
+                                        <div className="flex justify-center mb-4">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <FontAwesomeIcon
+                                                    key={star}
+                                                    icon={faStar}
+                                                    className={`cursor-pointer text-2xl ${starRating >= star ? 'text-yellow-500' : 'text-gray-300'}`}
+                                                    onMouseEnter={() => setStarRating(star)}
+                                                    onClick={() => setStarRating(star)}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="mb-4">
+                                            <label htmlFor="comment" className="block text-gray-700">Your Feedback</label>
+                                            <textarea
+                                                id="comment"
+                                                value={content}
+                                                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setContent(e.target.value)}
+                                                rows={4}
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                            />
+                                        </div>
+                                        <div className="mb-4">
+                                            <label htmlFor="name" className="block text-gray-700">Name <span className="text-red-500">*</span></label>
+                                            <input
+                                                type="text"
+                                                id="name"
+                                                value={name}
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="mb-4">
+                                            <label htmlFor="email" className="block text-gray-700">Your Email <span className="text-red-500">*</span></label>
+                                            <input
+                                                type="email"
+                                                id="email"
+                                                value={email}
+                                                onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex justify-end">
+                                            <button
+                                                onClick={handleSubmitText}
+                                                className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700"
+                                            >
+                                                Send
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {isVideoModalOpen && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+                            <div className="relative bg-white rounded-lg shadow-lg w-full max-w-lg max-h-[90vh] overflow-auto">
+                                <button
+                                    onClick={()=>{setIsVideoModalOpen(false)}}
+                                    className="absolute top-4 right-4 text-gray-600 hover:text-gray-800"
+                                >
+                                    <FontAwesomeIcon icon={faTimes} />
+                                </button>
+                                <div className="px-6 py-4">
+                                    <h2 className="text-2xl font-bold mb-4 text-center">Upload a Video Testimonial</h2>
+                                    <UploadComponent space={space} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

@@ -37,14 +37,17 @@ export interface SpacePageProps {
     space: string
 }
 
-export interface Testimonial {
+export type Testimonial = {
     type: 'VIDEO' | 'TEXT';
-    id?: number
+    id: number;
+    spaceName: string;
     starRating: number;
+    content?: string; 
     name: string;
     email: string;
-    content?: string;
+    videoUrl?: string;
     submittedAt: Date;
-    videoUrl?: string
-}
+    permission: boolean;
+};
+
 
